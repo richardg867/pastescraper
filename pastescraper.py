@@ -1,6 +1,5 @@
 # The Pastebin Scraper: est. 2014/12/13 20:41-0200
 # Based on the work of: http://www.michielovertoom.com/python/pastebin-abused/
-# 1418648256 = timestamp of last title-less paste.
 
 import BeautifulSoup, collections, datetime, json, os, Queue, random, sys, socket, struct, threading, time, traceback, urllib, urllib2
 from config import *
@@ -118,7 +117,7 @@ class GlypeWorker(ProxyWorker):
 		if not self.cur_proxy: self.refresh()
 		while True:
 			try:
-				req = urllib2.Request('http://{0}/browse.php?{1}'.format(self.cur_proxy_addr, urllib.urlencode({'b': 24, 'f': 'norefer', 'u': url})), headers={'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:34.0) Gecko/20100101 Firefox/34.0', 'Referer': 'http://{0}/'.format(self.cur_proxy_addr)})
+				req = urllib2.Request('http://{0}/browse.php?{1}'.format(self.cur_proxy_addr, urllib.urlencode({'b': 24, 'f': 'norefer', 'u': url})), headers={'User-Agent': GLYPE_USER_AGENT, 'Referer': 'http://{0}/'.format(self.cur_proxy_addr)})
 				resp = urllib2.urlopen(req, timeout=10)
 				if text and resp.headers.get('Content-Type')[:10] != 'text/plain':
 					# Glype only injects the browser thingy on HTML, and respects text/plain
