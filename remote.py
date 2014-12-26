@@ -25,7 +25,7 @@ def thread(client, client_addr):
 	
 	# Get the URL
 	try:
-		data = urllib2.urlopen(req['u']).read()
+		data = urllib2.urlopen(req['u'], timeout=10).read()
 		client.sendall(struct.pack('>HI', 200, len(data)) + data)
 		print '[-] {1}:{2} => PASS {0}'.format(req['u'], *client_addr)
 	except urllib2.HTTPError as e:
