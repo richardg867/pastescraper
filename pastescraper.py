@@ -202,23 +202,24 @@ def thread(worker, tid):
 	c = db.cursor()
 	
 	while not worker.stop:
-		html = worker.get('http://pastebin.com')
+		html = worker.get('http://pastebin.com/archive')
 		if not html:
-			log('[{0}] Could not get Pastebin home'.format(tid))
+			log('[{0}] Could not get Pastebin archive page'.format(tid))
 			time.sleep(NEW_PASTE_INTERVAL)
 			continue
 		ts = time.time()
 		
 		soup = BeautifulSoup.BeautifulSoup(html)
-		ul = soup.find('ul', 'right_menu')
-		if not ul: # right_menu not found, this HTML is definitely not pastebin
-			log('[{0}] Invalid Pastebin home'.format(tid))
+		table = soup.find('table', 'maintable')
+		if not table: # maintable not found, this HTML is definitely not pastebin
+			log('[{0}] Invalid Pastebin archive page'.format(tid))
 			worker.refresh()
 			continue
 		
-		# Recent pastes are under right_menu
-		for li in ul.findAll('li'):
-			paste = li.a['href']
+		# Paste links are adjacent to the icon image (i_p0)
+		for img in table.findAll('img', 'i_p0'):
+			paste_link = img.nextSibling
+			paste = paste_link['href']
 			if paste[0] == '/' and len(paste) == 9:
 				# local/remote/proxy
 				paste = paste[1:]
@@ -234,7 +235,7 @@ def thread(worker, tid):
 			if paste in seen_pastes: continue
 			seen_pastes.append(paste)
 			
-			paste_title = li.a.text.encode('utf-8', errors='ignore') # BeautifulSoup is unicode, let's not cause headaches about that
+			paste_title = paste_link.text.encode('utf-8', errors='ignore') # BeautifulSoup is unicode, let's not cause headaches about that
 			if paste_title == 'Untitled': paste_title = None # Untitled gets stored as NULL on the database
 			
 			log('[{0}] {1} => downloading'.format(tid, paste))
